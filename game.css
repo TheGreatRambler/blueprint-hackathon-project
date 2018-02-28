@@ -1,0 +1,81 @@
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  color: serif;
+}
+
+
+li {
+  display: inline;
+  font-size: 16pt;
+  font-family: serif;
+  margin-right: 50px;  
+}
+
+li:last-child {
+	margin: 0;
+}
+
+a:link {
+    color: white; 
+    background-color: transparent; 
+    text-decoration: none;
+}
+
+a:visited {
+    color: white;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:hover {
+    color: red;
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+a:active {
+    color: white;
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+h1 {
+    font-family: nosifer;
+    font-size: 48px;
+    color: white;
+} 
+
+h2 {
+    font-family: arial;
+    font-size: 48px;
+    color: red;
+}
+
+h3 {
+    font-size: 18px;
+    color: white;
+}
+
+.dark {
+    background-image: url("https://undark.org/wp-content/uploads/sites/2/2017/05/fog.jpg")
+}
+
+nav{
+   position: fixed;
+   top: 0px;
+}
+
+p {
+    color: white;
+    font-family: sans-serif;
+    
+}
+
+h3 { 
+    color: red;
+    font-family: sans-serif;
+    font-size: 30px;
+    
+}

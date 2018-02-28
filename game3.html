@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Dark Noises</title>
+        <link rel="icon" href="images/favicon.ico" type="image/ico" sizes="16x16">
+    </head>
+
+    <body>
+        <div id="container"></div>
+        <div id="console"></div>
+        <script src="js/rot.js"></script>
+        <script src="js/betterterrain.js"></script>
+        <script src="js/2darray.js"></script>
+        <script>
+            logtoconsole("You are the Darkness. Overtake the land by killing everything in sight.");
+            
+            var width = 55;
+            var height = 19;
+            var entityarray = [];
+
+            function logtoconsole(value) {
+                document.getElementById("console").innerHTML += value + "<br>";
+            }
+
+
+
+            player = {
+                x: 0,
+                y: 0,
+                speed: 1000,
+                score: 0,
+                health: 25,
+                color: "#000000",
+                facing: 1,
+                currency: 0
+            };
+
+            var entities = {
+                fish: {
+                    name: "fish",
+                    attack: 5,
+                    color: "pink"
+                },
+
+                vulture: {
+                    name: "vulture",
+                    attack: 2,
+                    color: "#806517"
+                },
+
+                bug: {
+                    name: "bug",
+                    attack: 1,
+                    color: "yellow"
+                },
+
+                tribesman: {
+                    name: "tribesman",
+                    attack: 3,
+                    color: "red"
+                },
+                
+                fish: {
+                    name: "fish",
+                    attack: 3,
+                    color: "orange"
+                }
+            };
+
+
+            /* 
+            
+            function generateEnemy() {
+                var chosenEnemy = 0;
+                enemies = ["fish", "vulture", "bug", "tribesman"];
+                var enemyNo = Math.random(4);
+                if (enemyNo < 1) {
+                    chosenEnemy = 1;
+                }
+                else if (enemyNo < 2) {
+                    chosenEnemy = 2;
+                }
+                else if (enemyNo < 3) {
+                    chosenEnemy = 3;
+                }
+                else if (enemyNo < 4) {
+                    chosenEnemy = 4;
+                }
+                
+                if chosenEnemy
+            }
+            
+            */
+
+            document.addEventListener("keypress", function(e) {
+                if (e.key === "w") {
+                    player.y -= player.speed;
+                    player.facing = 1;
+                } else if (e.key === "s") {
+                    player.y += player.speed;
+                    player.facing = 3;
+                } else if (e.key === "a") {
+                    player.x -= player.speed;
+                    player.facing = 4;
+                } else if (e.key === "d") {
+                    player.x += player.speed;
+                    player.facing = 2;
+                } else if (e.key === "up") {
+                    player.y += player.speed;
+                    player.facing = 1;
+                } else if (e.key === "down") {
+                    player.y -= player.speed;
+                    player.facing = 3;
+                } else if (e.key === "left") {
+                    player.x -= player.speed;
+                    player.facing = 4;
+                } else if (e.key === "right") {
+                    player.x += player.speed;
+                    player.facing = 2;
+                }
+                drawscreen();
+                checkcollision();
+            }, false);
+
+            var display = new ROT.Display({
+                    width: width,
+                    height: height,
+                    fontSize: 24,
+                    fontFamily: "serif",
+                    bg: "grey",
+                    ffisheSquareRatio: true,
+                });
+
+            var options = {}
+            options.chunksize = 16;
+            options.onlyheight = false;
+            options.clearmemoryamount = 10000;
+            options.biomemap = [
+                ["S", "S", "S", "S", "I", "I"], // <--- 1
+                ["S", "S", "S", "I", "I", "B"],
+                ["S", "S", "I", "I", "B", "B"],
+                ["S", "S", "I", "I", "B", "P"],
+                ["S", "B", "B", "B", "P", "J"],
+                ["S", "B", "B", "B", "P", "J"],
+                ["S", "F", "F", "P", "J", "D"],
+                ["S", "F", "D", "J", "D", "D"],
+                ["S", "B", "B", "J", "D", "D"],
+                ["S", "F", "J", "D", "D", "D"],
+                ["F", "J", "D", "D", "D", "D"],
+                ["I", "W", "W", "W", "W", "W"], // <--- ,
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"],
+                ["X", "X", "X", "X", "X", "X"] // <--- -1
+            ];
+            options.biomes = {
+                W: {
+                    name: "forest",
+                    color: "green",
+                    structures: [{
+                        name: "house",
+                        chance: 0.11
+                    }]
+                },
+                X: {
+                    name: "water",
+                    color: "blue",
+                    childentities: [{
+                            name: "fish",
+                            chance: 1
+                        }
+                    ]
+
+                },
+                D: {
+                    name: "air",
+                    color: "#EBF4FA",
+                    childentities: [{
+                            name: "vulture",
+                            chance: 1
+                        }
+                    ]
+                },
+                J: {
+                    name: "darktree",
+                    color: "#4CC417",
+                    
+                },
+                F: {
+                    color: "#7E3817",
+                    childentities: [{
+                            name: "tribesman",
+                            chance: 2
+                        }
+                    ]
+                },
+                S: {
+                    name: "desert",
+                    color: "yellow"
+                },
+                G: {
+                    color: "#F9966B"
+                },
+            };
+            options.structures = {
+                house: {
+                    data: function(environmentdata) {
+                        var data = [
+                            ["F", "F", "F", "F", "F", "F"],
+                            ["F", "G", "G", "G", "G", "F"],
+                            ["G", "G", "G", "G", "G", "F"],
+                            ["F", "G", "G", "G", "G", "F"],
+                            ["F", "F", "F", "F", "F", "F"]
+                        ];
+                        return data;
+                    },
+                }
+            }
+            options.freq = 10;
+            var terrain = new betterterrain(options);
+            document.getElementById("container").appendChild(display.getContainer());
+
+            function getindex(x, y) {
+                return tdarrayindex.encode(x, y, "szudzik", true)
+            }
+
+            function checkcollision() {
+                var loc = [];
+                if (player.facing === 1) {
+                    loc = [player.x, player.y - 1];
+                } else if (player.facing === 2) {
+                    loc = [player.x + 1, player.y];
+                } else if (player.facing === 3) {
+                    loc = [player.x, player.y + 1];
+                } else if (player.facing === 4) {
+                    loc = [player.x - 1, player.y];
+                }
+                //console.log([player.x, player.y], loc);
+                var index = getindex(loc[0], loc[1]);
+                var entityvalue = entityarray[index];
+                if (typeof entityvalue.e !== "undefined") {
+                    reacttocollision(entityvalue);
+                }
+            }
+
+            function reacttocollision(entity) {
+                logtoconsole("A " + entity.e + " attacks you!");
+                setTimeout(function () {
+                    var choice = prompt("Would you like to fight the " + entity.e + "? Yes or No");
+                    if (choice == 'yes' || choice == 'Yes') {
+                        player.health -= entities[entity.e].attack;
+                        player.score += 1;
+                        logtoconsole("You slayed the " + entities[entity.e].name + "!");
+                        entity = 1;
+                        logtoconsole("You are at " + player.health + " health, and now have a reaped life force of " + player.score);
+                    } else {
+                        if (Math.random(1) < 0.5) {
+                            player.health -=entities[entity.e].attack;
+                            logtoconsole("You tried to get away but still took damage!");
+                            entity = 1;
+                            logtoconsole("You are at " + player.health + " health!");
+                        } else {
+                            logtoconsole("You got away safetly!");
+                        }
+                }
+                },100);
+                    
+            }
+
+            function init() {
+                drawscreen();
+            }
+
+            function drawscreen() {
+                for (var j = 0; j < height; j++) {
+                    for (var i = 0; i < width; i++) {
+                        var x = i + player.x - (width / 2 - 0.5);
+                        var y = j + player.y - (height / 2 - 0.5);
+                        var val = terrain.getdata(x, y);
+                        entityarray[getindex(x, y)] = {};
+                        if (val.e) {
+                            entityarray[getindex(x, y)] = {
+                                e: val.e,
+                                health: entities[val.e].health
+                            };
+                        }
+                        if (typeof entityarray[getindex(x, y)].e !== "undefined") {
+                            display.draw(i, j, "", "#FFFFFF", entities[val.e].color);
+                        } else {
+                            if (val.i) {
+                                display.draw(i, j, "", "#FFFFFF", (options.biomes[val.i] ? options.biomes[val.i].color : "#FFFF00"));
+                            } else {
+                                display.draw(i, j, "", "#FFFFFF", (options.biomes[val.b] ? options.biomes[val.b].color : "#FFFF00"));
+                            }
+                        }
+                    }
+                    display.draw((width / 2) - 0.5, (height / 2) - 0.5, "", "000000", player.color);
+                }
+            }
+            
+
+            init();
+            
+            setInterval(function() {
+                if (player.health < 0) {
+                    alert("You lose the game");
+                }
+            }, 1000);
+            
+            
+            
+        </script>
+
+    </body>
+
+</html>
